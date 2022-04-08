@@ -20,6 +20,8 @@
  */
 package de.ovgu.featureide.fm.core.init;
 
+import java.lang.reflect.InvocationTargetException;
+
 import de.ovgu.featureide.fm.core.JavaLogger;
 import de.ovgu.featureide.fm.core.Logger;
 import de.ovgu.featureide.fm.core.base.impl.ConfigFormatManager;
@@ -36,6 +38,11 @@ import de.ovgu.featureide.fm.core.configuration.DefaultFormat;
 import de.ovgu.featureide.fm.core.configuration.EquationFormat;
 import de.ovgu.featureide.fm.core.configuration.ExpressionFormat;
 import de.ovgu.featureide.fm.core.configuration.FeatureIDEFormat;
+
+import de.ovgu.featureide.fm.core.io.IFeatureModelFormat;
+import de.ovgu.featureide.fm.core.io.IConfigurationFormat;
+import de.ovgu.featureide.fm.core.base.IFeatureModelFactory;
+
 import de.ovgu.featureide.fm.core.configuration.XMLConfFormat;
 import de.ovgu.featureide.fm.core.io.FileSystem;
 import de.ovgu.featureide.fm.core.io.JavaFileSystem;
@@ -73,11 +80,43 @@ public final class FMCoreLibrary implements ILibrary {
 		LongRunningWrapper.INSTANCE = new LongRunningCore();
 		Logger.logger = new JavaLogger();
 
+		IFeatureModelFactory extendedFeatureModelFactory;
+		try {
+			extendedFeatureModelFactory = (IFeatureModelFactory) IFeatureModelFactory.class
+							.getClassLoader()
+							.loadClass("de.ovgu.featureide.fm.attributes.base.impl.ExtendedFeatureModelFactory")
+							.getDeclaredConstructor()
+							.newInstance();
+
+			// NOTE: there is also this: import de.ovgu.featureide.fm.attributes.base.impl.ExtendedMultiFeatureModelFactory;
+
+			FMFactoryManager.getInstance().addExtension(extendedFeatureModelFactory);
+		} catch (
+				InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+				| SecurityException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}		
+
 		FMFactoryManager.getInstance().addExtension(DefaultFeatureModelFactory.getInstance());
 		FMFactoryManager.getInstance().addExtension(MultiFeatureModelFactory.getInstance());
 		FMFactoryManager.getInstance().setWorkspaceLoader(new CoreFactoryWorkspaceLoader());
 
 		FMFormatManager.getInstance().addExtension(new XmlFeatureModelFormat());
+
+		IFeatureModelFormat extendedFormatParser;
+		try {
+			extendedFormatParser = (IFeatureModelFormat) IFeatureModelFormat.class
+							.getClassLoader()
+							.loadClass("de.ovgu.featureide.fm.attributes.format.XmlExtendedFeatureModelFormat")
+							.getDeclaredConstructor()
+							.newInstance();
+			FMFormatManager.getInstance().addExtension(extendedFormatParser);
+		} catch (
+				InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+				| SecurityException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
 		FMFormatManager.getInstance().addExtension(new SimpleVelvetFeatureModelFormat());
 		FMFormatManager.getInstance().addExtension(new DIMACSFormat());
 		FMFormatManager.getInstance().addExtension(new SXFMFormat());
@@ -89,6 +128,21 @@ public final class FMCoreLibrary implements ILibrary {
 		ConfigurationFactoryManager.getInstance().setWorkspaceLoader(new CoreFactoryWorkspaceLoader());
 
 		ConfigFormatManager.getInstance().addExtension(new XMLConfFormat());
+
+		IConfigurationFormat extendedConfFormat;
+		try {
+			extendedConfFormat = (IConfigurationFormat) IConfigurationFormat.class
+							.getClassLoader()
+							.loadClass("de.ovgu.featureide.fm.attributes.format.XmlExtendedConfFormat")
+							.getDeclaredConstructor()
+							.newInstance();
+			ConfigFormatManager.getInstance().addExtension(extendedConfFormat);
+		} catch (
+				InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+				| SecurityException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
 		ConfigFormatManager.getInstance().addExtension(new DefaultFormat());
 		ConfigFormatManager.getInstance().addExtension(new FeatureIDEFormat());
 		ConfigFormatManager.getInstance().addExtension(new EquationFormat());

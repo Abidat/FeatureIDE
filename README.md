@@ -1,3 +1,11 @@
+
+# Modifications
+
+This is a fork of the original feature IDE and contains following modifications:
+
+- CLI: ability to use extended feature models (see CLI code in "de.ovgu.featureide.fm.core")
+
+
 # FeatureIDE
 
 An extensible framework for feature-oriented software development

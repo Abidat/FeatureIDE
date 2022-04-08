@@ -86,7 +86,7 @@ public class CustomFeaturesCustomPropertiesTest {
 
 		@Override
 		public MyFeatureImplementation copyFeature(IFeatureModel featureModel, IFeature oldFeature) {
-			return (MyFeatureImplementation) oldFeature.getStructure().clone(featureModel).getFeature();
+			return (MyFeatureImplementation) oldFeature.clone(featureModel, oldFeature.getStructure().clone(featureModel));
 		}
 
 		@Override
