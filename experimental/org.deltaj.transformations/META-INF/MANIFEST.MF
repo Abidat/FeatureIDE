@@ -13,7 +13,7 @@ Require-Bundle: org.deltaj,
  org.eclipse.xtext.xbase.lib
 Import-Package: org.apache.log4j,
  org.apache.commons.logging
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.deltaj.transformations.actions;uses:="org.eclipse.emf.ecore,org.deltaj.deltaj",
  org.deltaj.transformations.cleanup.features;uses:="org.deltaj.deltaj",
  org.deltaj.transformations.conditions;uses:="org.deltaj.transformations.modules.references,org.deltaj.deltaj,org.deltaj.transformations.actions",

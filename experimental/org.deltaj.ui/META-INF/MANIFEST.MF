@@ -23,7 +23,7 @@ Require-Bundle: org.deltaj,
  org.eclipse.xpand
 Import-Package: org.apache.log4j,
  org.apache.commons.logging
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.deltaj.ui,
  org.deltaj.ui.contentassist,
  org.deltaj.ui.contentassist.antlr,

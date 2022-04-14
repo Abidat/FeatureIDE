@@ -65,6 +65,13 @@ public class SliceFeatureModel implements LongRunningMethod<IFeatureModel> {
 	private final Collection<String> featureNames;
 	private final IFeatureModel featureModel;
 
+	/**
+	 * Provide access to the internal model.
+	 */
+	public IFeatureModel getFeatureModel() {
+		return featureModel;
+	}
+
 	public SliceFeatureModel(IFeatureModel featureModel, Collection<String> featureNames, boolean considerConstraints) {
 		this(featureModel, featureNames, considerConstraints, true);
 	}

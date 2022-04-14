@@ -21,3 +21,6 @@
 /tests/de.ovgu.featureide.fm.core-test/.featureide/
 /tests/de.ovgu.featureide.fm.core-test/feature_model_tmp**
 **/target
+.tycho*
+*Model.xml.salt
+*Attributes.xml.salt
