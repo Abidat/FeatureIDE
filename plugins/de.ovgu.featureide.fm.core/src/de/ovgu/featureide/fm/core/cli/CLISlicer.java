@@ -2,26 +2,20 @@ package de.ovgu.featureide.fm.core.cli;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import de.ovgu.featureide.fm.core.analysis.cnf.CNF;
-import de.ovgu.featureide.fm.core.analysis.cnf.ClauseList;
-import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
-import de.ovgu.featureide.fm.core.io.ProblemList;
-import de.ovgu.featureide.fm.core.io.expression.ExpressionGroupFormat;
 import de.ovgu.featureide.fm.core.io.manager.FeatureModelManager;
 import de.ovgu.featureide.fm.core.io.manager.FileHandler;
 import de.ovgu.featureide.fm.core.job.SliceFeatureModel;
 import de.ovgu.featureide.fm.core.job.LongRunningMethod;
 import de.ovgu.featureide.fm.core.job.LongRunningWrapper;
 import de.ovgu.featureide.fm.core.job.monitor.ConsoleMonitor;
-import de.ovgu.featureide.fm.core.io.IFeatureModelFormat;
 import de.ovgu.featureide.fm.core.io.IPersistentFormat;
-import de.ovgu.featureide.fm.core.base.impl.FMFormatManager;
 
 /**
  * Slice a feature model according to a feature and thus create a sub-view of the entire model.
@@ -49,17 +43,19 @@ public class CLISlicer extends ACLIFunction {
 		if (outputFile == null) {
 			throw new IllegalArgumentException("No output file specified!");
 		}
-		if (selectedFeatures == null) {
-			throw new IllegalArgumentException("No features selected, use: f1,f3");
+		if (selectedFeatures == null || !selectedFeatures.contains("\"")) {
+			throw new IllegalArgumentException("No features selected, use: \"f1\",\"f3\" including the hyphens.");
 		}
+
+		final Collection<String> selectedFeatureList = splitFeatureCLIArguments(selectedFeatures);
+
 
 		final FileHandler<IFeatureModel> fileHandler = FeatureModelManager.getFileHandler(fmFile);
 		if (fileHandler.getLastProblems().containsError()) {
 			throw new IllegalArgumentException(fileHandler.getLastProblems().getErrors().get(0).error);
 		}
 
-        final Collection<String> selectedFeatures = new ArrayList<String>();
-        final LongRunningMethod<IFeatureModel> method = new SliceFeatureModel(fileHandler.getObject(), selectedFeatures, true);
+        final LongRunningMethod<IFeatureModel> method = new SliceFeatureModel(fileHandler.getObject(), selectedFeatureList, true);
     
         //final IRunner<IFeatureModel> runner = LongRunningWrapper.getRunner(method, "Slicing Feature Model");
         final IPersistentFormat<IFeatureModel> format = fileHandler.getFormat();
@@ -72,6 +68,11 @@ public class CLISlicer extends ACLIFunction {
 		selectedFeatures = null;
 		outputFile = null;
 		fmFile = null;
+	}
+
+	public static Collection<String> splitFeatureCLIArguments(String features){
+		String[] splitFeatures = features.split("\"");
+		return Arrays.stream(splitFeatures).filter(item -> item.trim().length() > 1 && !item.trim().equals(",")).collect(Collectors.toList());
 	}
 
 	private void parseArguments(List<String> args) {

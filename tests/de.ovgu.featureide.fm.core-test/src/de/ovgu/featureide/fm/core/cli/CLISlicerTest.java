@@ -26,6 +26,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.beans.Transient;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -64,11 +65,19 @@ public class CLISlicerTest {
 			"gpl_medium_model");
 
 	@Test
+	public void TestFeatureSplit() {
+		// Command line argument parser tests
+		assertEquals(CLISlicer.splitFeatureCLIArguments("\"one\", \"two\"").size(), 2);
+		assertEquals(CLISlicer.splitFeatureCLIArguments("\"one\", \"two\"").iterator().next(), "one");
+	}
+
+
+	@Test
 	public void AllCoverage() {
-		testSize("basic", "all");
-		testSize("simple", "all");
-		testSize("car", "all");
-		testSize("gpl_medium_model", "all");
+		testSize("basic", "\"all\"");
+		testSize("simple", "\"all\",\"none\"");
+		testSize("car", "\"all\"");
+		testSize("gpl_medium_model", "\"all\", \"medium\"");
 	}
 
 
