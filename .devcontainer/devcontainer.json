@@ -1,0 +1,25 @@
+{
+    "name": "jdk11 with maven",
+    "image": "maven:3.8.6-jdk-11",
+    // "build": { "dockerfile": "Dockerfile" },
+    "runArgs": [
+      "-it",
+      "--gpus",
+      "all",
+      "--net=host",
+      "--pid=host",
+      "--env=DISPLAY",
+      "--volume=/tmp/.X11-unix:/tmp/.X11-unix:rw"
+    ],
+    "settings": {
+      "terminal.integrated.shell.linux": "/bin/bash"
+    },
+    "containerEnv": {
+      "http_proxy": "${localEnv:http_proxy}",
+      "https_proxy": "${localEnv:http_proxy}"
+    },
+    // "remoteUser": "developer",
+    "extensions": [
+		"vscjava.vscode-java-pack"
+	]
+  }
