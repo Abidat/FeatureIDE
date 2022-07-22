@@ -109,7 +109,7 @@ public class PairWiseConfigurationGeneratorWeightFeatures extends AConfiguration
 		@Override
 		public int compareTo(FeatureIndex o) {
 			// @todo use weight in compare method!
-			final int result = coveredCombinations - o.coveredCombinations;
+			final int result = (int)(((double)coveredCombinations * this.weight - (double)o.coveredCombinations * o.weight) * 100.0);
 			return result != 0 ? result : (int) Math.signum(priority - o.priority);
 		}
 
@@ -172,11 +172,13 @@ public class PairWiseConfigurationGeneratorWeightFeatures extends AConfiguration
 	protected long time = 0;
 
 	private int[] allYesSolution, allNoSolution;
+	private final double[] weights;
 
 	// @todo add list of weights as constructor argument
-	public PairWiseConfigurationGeneratorWeightFeatures(CNF satInstance, int maxNumber) {
+	public PairWiseConfigurationGeneratorWeightFeatures(CNF satInstance, int maxNumber, double[] weights) {
 		super(satInstance);
 		this.maxNumber = maxNumber;
+		this.weights = weights;
 		numVariables = solver.getSatInstance().getVariables().size();
 	}
 
@@ -856,8 +858,7 @@ public class PairWiseConfigurationGeneratorWeightFeatures extends AConfiguration
 			int index = 0;
 			for (int i = 0; i < numVariables; i++) {
 				if (!featuresUsedOrg[i]) {
-					featureIndexArray[index++] = new FeatureIndex(i);
-
+					featureIndexArray[index++] = new FeatureIndex(i, weights[i]);
 				}
 			}
 		}

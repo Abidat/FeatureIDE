@@ -34,6 +34,7 @@ import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.AllConfigurationGenerator;
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.IConfigurationGenerator;
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.PairWiseConfigurationGenerator;
+import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.PairWiseConfigurationGeneratorWeightFeatures;
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.RandomConfigurationGenerator;
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.SPLCAToolConfigurationGenerator;
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.twise.TWiseConfigurationGenerator;
@@ -109,6 +110,15 @@ public class ConfigurationGenerator extends ACLIFunction {
 		}
 		case "incling": {
 			generator = new PairWiseConfigurationGenerator(cnf, limit);
+			break;
+		}
+		case "incling_weight": {
+			double weights[] = new double[6];
+			for (int i = 0; i < weights.length; ++i) {
+				weights[i] = 1.0;
+			}
+			// @todo set weights...
+			generator = new PairWiseConfigurationGeneratorWeightFeatures(cnf, limit, weights);
 			break;
 		}
 		case "yasa": {
