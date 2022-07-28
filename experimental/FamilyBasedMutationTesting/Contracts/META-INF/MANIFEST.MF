@@ -16,5 +16,5 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  de.ovgu.featureide.core,
  de.ovgu.featureide.fm.core
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy

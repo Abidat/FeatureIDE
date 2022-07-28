@@ -31,9 +31,11 @@ import org.sat4j.specs.IConstr;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.CNF;
 import de.ovgu.featureide.fm.core.analysis.cnf.LiteralSet;
+import de.ovgu.featureide.fm.core.analysis.cnf.manipulator.remove.CNFSlicer;
 import de.ovgu.featureide.fm.core.analysis.cnf.solver.ISatSolver;
 import de.ovgu.featureide.fm.core.analysis.cnf.solver.ISatSolver.SelectionStrategy;
 import de.ovgu.featureide.fm.core.analysis.cnf.solver.RuntimeContradictionException;
+import de.ovgu.featureide.fm.core.job.LongRunningWrapper;
 import de.ovgu.featureide.fm.core.job.monitor.IMonitor;
 
 /**
@@ -137,7 +139,7 @@ public class PairWiseConfigurationGenerator extends AConfigurationGenerator impl
 
 	}
 
-	public static final boolean VERBOSE = false;
+	public static final boolean VERBOSE = true;
 
 	protected static final byte BIT_00 = 1 << 0;
 	protected static final byte BIT_01 = 1 << 1;
@@ -166,10 +168,23 @@ public class PairWiseConfigurationGenerator extends AConfigurationGenerator impl
 
 	private int[] allYesSolution, allNoSolution;
 
+	private List<int[]> metaData;
+
 	public PairWiseConfigurationGenerator(CNF satInstance, int maxNumber) {
 		super(satInstance);
 		this.maxNumber = maxNumber;
 		numVariables = solver.getSatInstance().getVariables().size();
+	}
+
+	public PairWiseConfigurationGenerator(CNF satInstance, int maxNumber, List<int[]> metaData) {
+		// super(satInstance);
+		super(satInstance);
+		final CNF slicedCNF = LongRunningWrapper.runMethod(new CNFSlicer(satInstance, new ArrayList<String>()));
+		super.initSolver(slicedCNF);
+
+		this.maxNumber = maxNumber;
+		numVariables = solver.getSatInstance().getVariables().size();
+		this.metaData = metaData;
 	}
 
 	protected void addCombinationsFromModel(int[] curModel) {
@@ -601,24 +616,33 @@ public class PairWiseConfigurationGenerator extends AConfigurationGenerator impl
 		}
 
 		config.time = System.nanoTime() - time;
+		// Statistic numbers
+		final int absUncovered = printStatisticNumbers(config);
+
 		addResult(solution);
+		addMetaData(count, config, combinationCount);
 		count++;
 		time = System.nanoTime();
 
 		try {
 			solver.addInternalClause(solution.negate());
 		} catch (final RuntimeContradictionException e) {
+			System.out.println("Error: caught runtimecontradicitionexception:" + e.toString());
 			return true;
 		}
-
-		// Statistic numbers
-		final int absUncovered = printStatisticNumbers(config);
 
 		finalCount = Math.max(finalCount, count - maxBackJumping);
 		if (absUncovered <= 0) {
 			return true;
 		}
 		return false;
+	}
+
+	private void addMetaData(int solution_id, Configuration config, int combinationCount) {
+		if (metaData != null) {
+			final int[] values = { solution_id, config.totalCoverage, config.deltaCoverage, combinationCount };
+			metaData.add(values);
+		}
 	}
 
 	@SuppressWarnings("unused")
@@ -635,7 +659,7 @@ public class PairWiseConfigurationGenerator extends AConfigurationGenerator impl
 		relDelta = Math.floor(relDelta * 100000.0) / 1000.0;
 		relTotal = Math.floor(relTotal * 1000.0) / 10.0;
 		if (VERBOSE) {
-			System.out.println(count++ + ": " + config.getTotalCoverage() + "/" + combinationCount + " | " + relTotal + "% | left = " + absUncovered
+			System.out.println(count + ": " + config.getTotalCoverage() + "/" + combinationCount + " | " + relTotal + "% | uncovered = " + absUncovered
 				+ " | new = " + config.getDeltaCoverage() + " | delta = " + relDelta);
 		}
 		return absUncovered;

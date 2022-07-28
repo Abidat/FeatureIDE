@@ -5,7 +5,7 @@
         <dependency>
             <groupId>de.ovgu.featureide</groupId>
             <artifactId>de.ovgu.featureide.fm.ui</artifactId>
-            <version>3.6.3-SNAPSHOT</version>
+            <version>3.8.2-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

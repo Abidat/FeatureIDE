@@ -3,12 +3,14 @@ package br.ufal.ic.colligens.activator;
 import java.io.File;
 import java.net.URL;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.BundleContext;
 
 import de.ovgu.featureide.fm.ui.AbstractUIPlugin;
+
+import org.eclipse.core.runtime.Platform;
+
+import org.eclipse.osgi.service.datalocation.Location;
 
 /**
  * The activator class controls the plug-in life cycle

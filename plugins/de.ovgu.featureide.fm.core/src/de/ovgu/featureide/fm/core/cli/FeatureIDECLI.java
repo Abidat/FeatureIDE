@@ -35,7 +35,7 @@ public class FeatureIDECLI {
 
 	public static void main(String[] args) {
 		if (args.length == 0) {
-			System.err.println("No operation specified!");
+			System.err.println("No operation specified, add an operation as parameter when starting!");
 			return;
 		}
 		System.err.println(Arrays.asList(args));

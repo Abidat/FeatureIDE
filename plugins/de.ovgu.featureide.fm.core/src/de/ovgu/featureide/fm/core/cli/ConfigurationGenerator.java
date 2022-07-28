@@ -20,6 +20,10 @@
  */
 package de.ovgu.featureide.fm.core.cli;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -55,6 +59,7 @@ public class ConfigurationGenerator extends ACLIFunction {
 
 	private String algorithm;
 	private Path outputFile;
+	private Path outputFileMeta;
 	private Path fmFile;
 	private Path expressionFile;
 	private int t;
@@ -66,6 +71,10 @@ public class ConfigurationGenerator extends ACLIFunction {
 		return "genconfig";
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.ovgu.featureide.fm.core.cli.ICLIFunction#run(java.util.List)
+	 */
 	@Override
 	public void run(List<String> args) {
 		parseArguments(args);
@@ -84,6 +93,7 @@ public class ConfigurationGenerator extends ACLIFunction {
 		if (fileHandler.getLastProblems().containsError()) {
 			throw new IllegalArgumentException(fileHandler.getLastProblems().getErrors().get(0).error);
 		}
+
 		final CNF cnf = new FeatureModelFormula(fileHandler.getObject()).getCNF();
 
 		final ArrayList<List<ClauseList>> expressionGroups;
@@ -98,6 +108,8 @@ public class ConfigurationGenerator extends ACLIFunction {
 		}
 
 		IConfigurationGenerator generator = null;
+		// we want to collect additional metadata to forward metrics for configuration analysis (postprocessing)
+		final List<int[]> metaData = new ArrayList<int[]>();
 		switch (algorithm.toLowerCase()) {
 		case "icpl": {
 			generator = new SPLCAToolConfigurationGenerator(cnf, "ICPL", t, limit);
@@ -108,7 +120,7 @@ public class ConfigurationGenerator extends ACLIFunction {
 			break;
 		}
 		case "incling": {
-			generator = new PairWiseConfigurationGenerator(cnf, limit);
+			generator = new PairWiseConfigurationGenerator(cnf, limit, metaData);
 			break;
 		}
 		case "yasa": {
@@ -133,11 +145,26 @@ public class ConfigurationGenerator extends ACLIFunction {
 		}
 		final List<LiteralSet> result = LongRunningWrapper.runMethod(generator, new ConsoleMonitor<>());
 		FileHandler.save(outputFile, new SolutionList(cnf.getVariables(), result), new ConfigurationListFormat());
+		// FileHandler.save(outputFileMeta, new SolutionList(cnf.getVariables(), metaData), new ConfigurationListFormat());
+		try (BufferedWriter writer = Files.newBufferedWriter(outputFileMeta, StandardCharsets.UTF_8)) {
+			for (final int[] valueList : metaData) {
+				if (valueList.length > 3) {
+					double relDelta = (double) (valueList[2]) / valueList[3];
+					double relTotal = (double) (valueList[1]) / valueList[3];
+					relDelta = Math.floor(relDelta * 100000.0) / 1000.0;
+					relTotal = Math.floor(relTotal * 1000.0) / 10.0;
+					writer.write(valueList[0] + ";" + relTotal + ";" + relDelta + ";" + valueList[3] + "\n");
+				}
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void resetArguments() {
 		algorithm = null;
 		outputFile = null;
+		outputFileMeta = null;
 		fmFile = null;
 		expressionFile = null;
 		t = 0;
@@ -156,7 +183,9 @@ public class ConfigurationGenerator extends ACLIFunction {
 					break;
 				}
 				case "o": {
-					outputFile = Paths.get(getArgValue(iterator, arg));
+					final String pathName = getArgValue(iterator, arg);
+					outputFile = Paths.get(pathName);
+					outputFileMeta = Paths.get(pathName + "_meta");
 					break;
 				}
 				case "fm": {
