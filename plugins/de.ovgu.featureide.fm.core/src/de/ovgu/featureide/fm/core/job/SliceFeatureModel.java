@@ -139,6 +139,8 @@ public class SliceFeatureModel implements LongRunningMethod<IFeatureModel> {
 
 		nroot.getStructure().setAbstract(true);
 		nroot.getStructure().setAnd();
+		nroot.getStructure().setMandatory(true);
+		root.getStructure().setMandatory(true);
 		nroot.getStructure().addChild(root.getStructure());
 		root.getStructure().setParent(nroot.getStructure());
 
@@ -148,6 +150,7 @@ public class SliceFeatureModel implements LongRunningMethod<IFeatureModel> {
 			changed = false;
 			merge(nroot.getStructure(), GROUP_NO);
 		} while (changed);
+		nroot.getStructure().getFirstChild().setMandatory(true);
 		monitor.step();
 
 		// needed to correctly set unique names for newly created abstract features

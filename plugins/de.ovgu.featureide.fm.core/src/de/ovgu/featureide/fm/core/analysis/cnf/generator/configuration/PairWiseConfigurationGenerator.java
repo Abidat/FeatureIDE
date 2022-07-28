@@ -31,11 +31,9 @@ import org.sat4j.specs.IConstr;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.CNF;
 import de.ovgu.featureide.fm.core.analysis.cnf.LiteralSet;
-import de.ovgu.featureide.fm.core.analysis.cnf.manipulator.remove.CNFSlicer;
 import de.ovgu.featureide.fm.core.analysis.cnf.solver.ISatSolver;
 import de.ovgu.featureide.fm.core.analysis.cnf.solver.ISatSolver.SelectionStrategy;
 import de.ovgu.featureide.fm.core.analysis.cnf.solver.RuntimeContradictionException;
-import de.ovgu.featureide.fm.core.job.LongRunningWrapper;
 import de.ovgu.featureide.fm.core.job.monitor.IMonitor;
 
 /**
@@ -177,10 +175,7 @@ public class PairWiseConfigurationGenerator extends AConfigurationGenerator impl
 	}
 
 	public PairWiseConfigurationGenerator(CNF satInstance, int maxNumber, List<int[]> metaData) {
-		// super(satInstance);
 		super(satInstance);
-		final CNF slicedCNF = LongRunningWrapper.runMethod(new CNFSlicer(satInstance, new ArrayList<String>()));
-		super.initSolver(slicedCNF);
 
 		this.maxNumber = maxNumber;
 		numVariables = solver.getSatInstance().getVariables().size();

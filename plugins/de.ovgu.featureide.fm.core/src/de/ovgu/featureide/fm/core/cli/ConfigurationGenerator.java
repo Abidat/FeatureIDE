@@ -48,6 +48,7 @@ import de.ovgu.featureide.fm.core.io.expression.ExpressionGroupFormat;
 import de.ovgu.featureide.fm.core.io.manager.FeatureModelManager;
 import de.ovgu.featureide.fm.core.io.manager.FileHandler;
 import de.ovgu.featureide.fm.core.job.LongRunningWrapper;
+import de.ovgu.featureide.fm.core.job.SliceFeatureModel;
 import de.ovgu.featureide.fm.core.job.monitor.ConsoleMonitor;
 
 /**
@@ -93,8 +94,18 @@ public class ConfigurationGenerator extends ACLIFunction {
 		if (fileHandler.getLastProblems().containsError()) {
 			throw new IllegalArgumentException(fileHandler.getLastProblems().getErrors().get(0).error);
 		}
+		// final CNF cnf = new FeatureModelFormula(fileHandler.getObject()).getCNF();
 
-		final CNF cnf = new FeatureModelFormula(fileHandler.getObject()).getCNF();
+		final List<String> sliceList = new ArrayList<String>();
+		sliceList.add("HCP1_Mid");
+		sliceList.add("HCP1_Mid_2.1");
+		sliceList.add("HCP1_OBD_AppAnOBD01.Mid_2.1: 0x7C9");
+
+		final SliceFeatureModel slicedModel = new SliceFeatureModel(new FeatureModelFormula(fileHandler.getObject()).getFeatureModel(), sliceList, true);
+		final IFeatureModel resultSlice = LongRunningWrapper.runMethod(slicedModel, new ConsoleMonitor<>());
+		final CNF cnf = new FeatureModelFormula(resultSlice).getCNF();
+
+		// final CNF slicedCNF = LongRunningWrapper.runMethod(new CNFSlicer(cnf, sliceList));
 
 		final ArrayList<List<ClauseList>> expressionGroups;
 		if (expressionFile != null) {

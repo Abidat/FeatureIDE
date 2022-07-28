@@ -532,6 +532,13 @@ public class FeatureModel implements IFeatureModel {
 	}
 
 	@Override
+	public FeatureModel cloneWithRoot() {
+		final IFeature root = getStructure().getRoot().getFeature();
+
+		return new FeatureModel(this, root);
+	}
+
+	@Override
 	public FeatureModel clone() {
 		return new FeatureModel(this, null);
 	}

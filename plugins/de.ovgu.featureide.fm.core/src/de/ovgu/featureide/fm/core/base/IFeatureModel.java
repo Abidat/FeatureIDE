@@ -645,6 +645,8 @@ public interface IFeatureModel extends Cloneable, IEventManager {
 	 */
 	IFeatureModel clone();
 
+	IFeatureModel cloneWithRoot();
+
 	/**
 	 * Replaces the feature order item at the specified position <code>i</code> in this feature model's feature order list with the specified element
 	 * <code>newName</code>.
