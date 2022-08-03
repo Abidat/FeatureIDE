@@ -166,6 +166,7 @@ public class PairWiseConfigurationGenerator extends AConfigurationGenerator impl
 
 	private int[] allYesSolution, allNoSolution;
 
+	// in this field we list the coverage numbers while the processor is running.
 	private List<int[]> metaData;
 
 	public PairWiseConfigurationGenerator(CNF satInstance, int maxNumber) {

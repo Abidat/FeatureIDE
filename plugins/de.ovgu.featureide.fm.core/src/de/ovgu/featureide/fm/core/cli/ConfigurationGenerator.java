@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.CNF;
 import de.ovgu.featureide.fm.core.analysis.cnf.ClauseList;
@@ -42,6 +43,7 @@ import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.RandomCon
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.SPLCAToolConfigurationGenerator;
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.twise.TWiseConfigurationGenerator;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import de.ovgu.featureide.fm.core.io.IPersistentFormat;
 import de.ovgu.featureide.fm.core.io.ProblemList;
 import de.ovgu.featureide.fm.core.io.csv.ConfigurationListFormat;
 import de.ovgu.featureide.fm.core.io.expression.ExpressionGroupFormat;
@@ -63,6 +65,7 @@ public class ConfigurationGenerator extends ACLIFunction {
 	private Path outputFileMeta;
 	private Path fmFile;
 	private Path expressionFile;
+	private List<String> featurefilterList;
 	private int t;
 	private int m;
 	private int limit;
@@ -96,14 +99,14 @@ public class ConfigurationGenerator extends ACLIFunction {
 		}
 		// final CNF cnf = new FeatureModelFormula(fileHandler.getObject()).getCNF();
 
-		final List<String> sliceList = new ArrayList<String>();
-		sliceList.add("HCP1_Mid");
-		sliceList.add("HCP1_Mid_2.1");
-		sliceList.add("HCP1_OBD_AppAnOBD01.Mid_2.1: 0x7C9");
+//		final List<String> sliceList = new ArrayList<String>();
+//		sliceList.add("HCP1_Mid");
+//		sliceList.add("HCP1_Mid_2.1");
+//		sliceList.add("HCP1_OBD_AppAnOBD01.Mid_2.1: 0x7C9");
 
-		final SliceFeatureModel slicedModel = new SliceFeatureModel(new FeatureModelFormula(fileHandler.getObject()).getFeatureModel(), sliceList, true);
-		final IFeatureModel resultSlice = LongRunningWrapper.runMethod(slicedModel, new ConsoleMonitor<>());
-		final CNF cnf = new FeatureModelFormula(resultSlice).getCNF();
+		final FeatureModelFormula formula = new FeatureModelFormula(fileHandler.getObject());
+
+		final CNF cnf = sliceOrNot(formula, fileHandler.getFormat());
 
 		// final CNF slicedCNF = LongRunningWrapper.runMethod(new CNFSlicer(cnf, sliceList));
 
@@ -172,12 +175,38 @@ public class ConfigurationGenerator extends ACLIFunction {
 		}
 	}
 
+	/**
+	 * This method slices the original CNF if necessary (if slicing parameters are given and set) otherwise returns original CNF.
+	 *
+	 * @param formula
+	 * @return
+	 */
+	private CNF sliceOrNot(final FeatureModelFormula formula, IPersistentFormat<IFeatureModel> format) {
+		System.out.println(formula.getFeatureModel().getFeatureOrderList());
+
+		// test finding parent:
+		final var variable = formula.getFeatureModel().getFeature(featurefilterList.get(0));
+
+		System.out.println(variable.getStructure().getParent().getFeature().getName());
+
+		if (featurefilterList.size() > 0) {
+			final SliceFeatureModel slicedModel = new SliceFeatureModel(formula.getFeatureModel(), formula.getFeatureModel().getFeatureOrderList(), true);
+			final IFeatureModel resultSlice = LongRunningWrapper.runMethod(slicedModel, new ConsoleMonitor<>());
+			final CNF cnf = new FeatureModelFormula(resultSlice).getCNF();
+			FeatureModelManager.save(resultSlice, Paths.get(outputFileMeta.toString() + "_slice.xml"), format);
+			return cnf;
+		} else {
+			return formula.getCNF();
+		}
+	}
+
 	private void resetArguments() {
 		algorithm = null;
 		outputFile = null;
 		outputFileMeta = null;
 		fmFile = null;
 		expressionFile = null;
+		featurefilterList = new ArrayList<String>();
 		t = 0;
 		m = 1;
 		limit = Integer.MAX_VALUE;
@@ -217,6 +246,18 @@ public class ConfigurationGenerator extends ACLIFunction {
 				}
 				case "e": {
 					expressionFile = Paths.get(getArgValue(iterator, arg));
+					break;
+				}
+				case "ff": {
+					// ff = feature filer = allow filtering of features from a given tree, must be a comma separated list
+					final String featurefilterStr = getArgValue(iterator, arg);
+					final StringTokenizer tokenizer = new StringTokenizer(featurefilterStr, ",");
+
+					while (tokenizer.hasMoreTokens()) {
+						// remove spaces as users could potentially add spaces before or after commas
+						featurefilterList.add(tokenizer.nextToken().trim().replace("\"", ""));
+					}
+
 					break;
 				}
 				default: {
