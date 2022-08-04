@@ -27,9 +27,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.CNF;
 import de.ovgu.featureide.fm.core.analysis.cnf.ClauseList;
@@ -42,7 +44,9 @@ import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.PairWiseC
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.RandomConfigurationGenerator;
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.SPLCAToolConfigurationGenerator;
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.twise.TWiseConfigurationGenerator;
+import de.ovgu.featureide.fm.core.base.IFeature;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import de.ovgu.featureide.fm.core.base.IFeatureStructure;
 import de.ovgu.featureide.fm.core.io.IPersistentFormat;
 import de.ovgu.featureide.fm.core.io.ProblemList;
 import de.ovgu.featureide.fm.core.io.csv.ConfigurationListFormat;
@@ -181,22 +185,67 @@ public class ConfigurationGenerator extends ACLIFunction {
 	 * @param formula
 	 * @return
 	 */
-	private CNF sliceOrNot(final FeatureModelFormula formula, IPersistentFormat<IFeatureModel> format) {
-		System.out.println(formula.getFeatureModel().getFeatureOrderList());
+	private CNF sliceOrNot(final FeatureModelFormula formulaIn, IPersistentFormat<IFeatureModel> format) {
+		// TODO: fix getting abstract features, too. ATM it only loads terminal features, thus the tree is looking differently after slicing
+		System.out.println(formulaIn.getFeatureModel().getFeatures());
 
-		// test finding parent:
-		final var variable = formula.getFeatureModel().getFeature(featurefilterList.get(0));
-
-		System.out.println(variable.getStructure().getParent().getFeature().getName());
+		IFeatureModel baseModel = formulaIn.getFeatureModel();
 
 		if (featurefilterList.size() > 0) {
-			final SliceFeatureModel slicedModel = new SliceFeatureModel(formula.getFeatureModel(), formula.getFeatureModel().getFeatureOrderList(), true);
-			final IFeatureModel resultSlice = LongRunningWrapper.runMethod(slicedModel, new ConsoleMonitor<>());
-			final CNF cnf = new FeatureModelFormula(resultSlice).getCNF();
-			FeatureModelManager.save(resultSlice, Paths.get(outputFileMeta.toString() + "_slice.xml"), format);
+			// test finding parent:
+			// final var variable = formula.getFeatureModel().getFeature(featurefilterList.get(0));
+			for (final String varName : featurefilterList) {
+				final List<String> featureNames = new ArrayList<String>();
+				final var variable = baseModel.getFeature(varName);
+				System.out.println(variable.getStructure().getParent().getFeature().getName());
+				List<IFeature> unwantedFeatures = new ArrayList<>();
+				unwantedFeatures = listAllChildrenRecursivly(variable.getName(), variable.getStructure().getParent(), unwantedFeatures);
+				final List<IFeature> allWantedFeatures = removeUnwantedFeaturesFromModel(baseModel.getFeatures(), unwantedFeatures);
+				// fetch actual feature list of names, since "orderedFeatures" function of feature model does not return abstract features:
+				allWantedFeatures.stream().forEach((k) -> featureNames.add(k.getName()));
+				final SliceFeatureModel slicedModel = new SliceFeatureModel(baseModel, featureNames, true);
+				final IFeatureModel resultSlice = LongRunningWrapper.runMethod(slicedModel, new ConsoleMonitor<>());
+				baseModel = resultSlice;
+			}
+
+			final CNF cnf = new FeatureModelFormula(baseModel).getCNF();
+			FeatureModelManager.save(baseModel, Paths.get(outputFileMeta.toString() + "_slice.xml"), format);
 			return cnf;
 		} else {
-			return formula.getCNF();
+			return formulaIn.getCNF();
+		}
+	}
+
+	/**
+	 * @param features
+	 * @param unwantedFeatures
+	 * @return
+	 */
+	private List<IFeature> removeUnwantedFeaturesFromModel(Collection<IFeature> features, List<IFeature> unwantedFeatures) {
+		return features.stream().filter((k) -> !unwantedFeatures.contains(k)).collect(Collectors.toList());
+	}
+
+	/**
+	 * @param parent
+	 * @return
+	 */
+	private List<IFeature> listAllChildrenRecursivly(String featureNameToKeep, IFeatureStructure parent, List<IFeature> featureList) {
+
+		final var children = parent.getChildren();
+
+		if (children.isEmpty()) {
+			return featureList;
+		} else {
+			for (final IFeatureStructure iFeatureStructure : children) {
+				// exclude selected alternative, otherwise put on removal list
+				// only remove alternatives, not mandatory or optionals!
+				if (!iFeatureStructure.getFeature().getName().equals(featureNameToKeep) && !featureList.contains(iFeatureStructure.getFeature())) {
+					featureList.add(iFeatureStructure.getFeature());
+					listAllChildrenRecursivly(featureNameToKeep, iFeatureStructure, featureList);
+				}
+			}
+			// should never get here, make compiler happy
+			return featureList;
 		}
 	}
 
