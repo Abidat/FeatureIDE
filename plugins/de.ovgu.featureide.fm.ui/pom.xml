@@ -9,4 +9,14 @@
 	</parent>
 	<artifactId>de.ovgu.featureide.fm.ui</artifactId>
 	<packaging>eclipse-plugin</packaging>
+	
+	
+	<dependencies>
+	<!-- https://mvnrepository.com/artifact/com.ibm.icu/com.ibm.icu -->
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>com.ibm.icu</artifactId>
+			<version>3.8.1-20081006</version>
+		</dependency>
+	</dependencies>
 </project>

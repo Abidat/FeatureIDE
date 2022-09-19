@@ -275,6 +275,10 @@
 			<url>http://download.eclipse.org/releases/latest</url>
 			<layout>p2</layout>
 		</repository>
+		<repository>
+			<id>2022-ibm-icu</id>
+			<url>https://repository.openmindonline.it/</url>
+		</repository>
 	</repositories>
 
 	<dependencies>

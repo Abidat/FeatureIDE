@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.draw2d.ConnectionLayer;
+import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.LayerConstants;
@@ -68,6 +69,11 @@ import de.ovgu.featureide.fm.ui.views.constraintview.util.ConstraintViewDialog;
  * @author Thomas Thuem
  */
 public class FeatureDiagramViewer extends ScrollingGraphicalViewer implements ISearchable<IGraphicalFeature>, GUIDefaults {
+
+	@Override
+	public FigureCanvas getFigureCanvas() {
+		return super.getFigureCanvas();
+	}
 
 	public final class DiagramControlListener implements ControlListener {
 
@@ -280,7 +286,9 @@ public class FeatureDiagramViewer extends ScrollingGraphicalViewer implements IS
 		// internRefresh(true);
 		final Map<?, ?> editPartRegistry = getEditPartRegistry();
 		final AbstractGraphicalEditPart abstractGraphicalEditPart = (AbstractGraphicalEditPart) editPartRegistry.get(graphicalFeatureModel);
-		abstractGraphicalEditPart.refresh();
+		if (abstractGraphicalEditPart != null) {
+			abstractGraphicalEditPart.refresh();
+		}
 		internRefresh(true);
 	}
 

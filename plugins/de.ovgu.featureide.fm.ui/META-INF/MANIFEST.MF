@@ -8,16 +8,16 @@ Require-Bundle:
  org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.databinding.observable,
- org.eclipse.jface.databinding,
  org.eclipse.jface.text,
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.ide,
  org.eclipse.ui.views,
- org.eclipse.gef,
  org.eclipse.core.expressions,
  org.eclipse.core.resources,
- de.ovgu.featureide.fm.core
+ de.ovgu.featureide.fm.core,
+ org.eclipse.jface.databinding,
+ org.eclipse.gef
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: University of Magdeburg
