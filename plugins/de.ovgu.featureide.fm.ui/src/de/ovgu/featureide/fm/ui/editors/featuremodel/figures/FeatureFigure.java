@@ -38,7 +38,7 @@ import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Color;
-
+import de.ovgu.featureide.fm.core.color.FeatureColorManager;
 import de.ovgu.featureide.fm.core.AnalysesCollection;
 import de.ovgu.featureide.fm.core.analysis.FeatureProperties;
 import de.ovgu.featureide.fm.core.analysis.FeatureProperties.FeatureStatus;
@@ -51,7 +51,6 @@ import de.ovgu.featureide.fm.core.base.impl.FeatureModelProperty;
 import de.ovgu.featureide.fm.core.base.impl.MultiFeature;
 import de.ovgu.featureide.fm.core.color.ColorPalette;
 import de.ovgu.featureide.fm.core.color.FeatureColor;
-import de.ovgu.featureide.fm.core.color.FeatureColorManager;
 import de.ovgu.featureide.fm.core.explanations.ExplanationWriter;
 import de.ovgu.featureide.fm.core.explanations.Reason;
 import de.ovgu.featureide.fm.core.explanations.fm.FeatureModelReason;
@@ -130,7 +129,11 @@ public class FeatureFigure extends ModelElementFigure implements GUIDefaults {
 
 		final IFeature feature = this.feature.getObject();
 		// First draw custom color
-		final FeatureColor color = FeatureColorManager.getColor(feature);
+		FeatureColor color = FeatureColor.Dark_Green;
+		try {
+			color = FeatureColorManager.getColor(feature);
+		}
+		catch (Exception ex) { }
 		if (color != FeatureColor.NO_COLOR) {
 			setBackgroundColor(new Color(null, ColorPalette.getRGB(color.getValue(), 0.5f)));
 		} else if (!feature.getStructure().isConcrete()) {

@@ -76,7 +76,13 @@ public class FMPropertyManager extends FMPropertyManagerDefaults implements GUID
 	private volatile static Color CURRENT_INHERITED_FEATURE_BORDER = null;
 	private volatile static Color CURRENT_IMPORTED_FEATURE_BORDER = null;
 	private volatile static Color CURRENT_INTERFACED_FEATURE_BORDER = null;
-	private volatile static Color FEATURE_BORDER_SAVE = GUIBasics.createBorderColor(CONCRETE_BACKGROUND);
+	private volatile static Color FEATURE_BORDER_SAVE = null; 
+	static {
+		try {
+			FEATURE_BORDER_SAVE = GUIBasics.createBorderColor(CONCRETE_BACKGROUND);
+		}
+		catch (Exception ex) {}
+	}
 	private volatile static Integer CURRENT_CONSTRAINT_SPACE_Y = null;
 	private volatile static Integer CURRENT_FEATURE_SPACE_Y = null;
 	private volatile static Integer CURRENT_FEATURE_SPACE_X = null;
@@ -586,6 +592,13 @@ public class FMPropertyManager extends FMPropertyManagerDefaults implements GUID
 		return 3;
 	}
 
+	private static void logError(final Exception e) {
+		try { 
+			FMCorePlugin.getDefault().logError(e);
+		}
+		catch (Exception ex) {}
+	}
+
 	/**
 	 * Gets the value(int) saved for the QualifiedName.<br> If there is no value saved, the given default value is returned.
 	 *
@@ -599,8 +612,8 @@ public class FMPropertyManager extends FMPropertyManagerDefaults implements GUID
 			if ((property != null) && !"".equals(property)) {
 				return Integer.parseInt(property);
 			}
-		} catch (final CoreException e) {
-			FMCorePlugin.getDefault().logError(e);
+		} catch (final Exception e) {
+			logError(e);
 		}
 		return defaultValue;
 	}
@@ -614,8 +627,8 @@ public class FMPropertyManager extends FMPropertyManagerDefaults implements GUID
 	private static void setInt(QualifiedName name, int value) {
 		try {
 			workspaceRoot.setPersistentProperty(name, Integer.toString(value));
-		} catch (final CoreException e) {
-			FMCorePlugin.getDefault().logError(e);
+		} catch (final Exception e) {
+			logError(e);
 		}
 	}
 
@@ -628,8 +641,8 @@ public class FMPropertyManager extends FMPropertyManagerDefaults implements GUID
 	private static boolean getBoolean(QualifiedName name) {
 		try {
 			return "true".equals(workspaceRoot.getPersistentProperty(name));
-		} catch (final CoreException e) {
-			FMCorePlugin.getDefault().logError(e);
+		} catch (final Exception e) {
+			logError(e);
 		}
 		return false;
 	}
@@ -643,8 +656,8 @@ public class FMPropertyManager extends FMPropertyManagerDefaults implements GUID
 	private static void setBoolean(QualifiedName name, boolean value) {
 		try {
 			workspaceRoot.setPersistentProperty(name, value ? TRUE : FALSE);
-		} catch (final CoreException e) {
-			FMCorePlugin.getDefault().logError(e);
+		} catch (final Exception e) {
+			logError(e);
 		}
 	}
 
@@ -664,8 +677,8 @@ public class FMPropertyManager extends FMPropertyManagerDefaults implements GUID
 					return new Color(null, Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2]));
 				}
 			}
-		} catch (final CoreException e) {
-			FMCorePlugin.getDefault().logError(e);
+		} catch (final Exception e) {
+			logError(e);
 		}
 		return deafaultColor;
 	}
@@ -680,8 +693,8 @@ public class FMPropertyManager extends FMPropertyManagerDefaults implements GUID
 		final String c = color.getRed() + "|" + color.getGreen() + "|" + color.getBlue();
 		try {
 			workspaceRoot.setPersistentProperty(name, c);
-		} catch (final CoreException e) {
-			FMCorePlugin.getDefault().logError(e);
+		} catch (final Exception e) {
+			logError(e);
 		}
 	}
 
@@ -696,8 +709,8 @@ public class FMPropertyManager extends FMPropertyManagerDefaults implements GUID
 			if (workspaceRoot.getPersistentProperty(name) != null) {
 				return workspaceRoot.getPersistentProperty(name);
 			}
-		} catch (final CoreException e) {
-			FMCorePlugin.getDefault().logError(e);
+		} catch (final Exception e) {
+			logError(e);
 		}
 		return "";
 	}
@@ -711,8 +724,8 @@ public class FMPropertyManager extends FMPropertyManagerDefaults implements GUID
 	private static void setString(QualifiedName name, String value) {
 		try {
 			workspaceRoot.setPersistentProperty(name, value);
-		} catch (final CoreException e) {
-			FMCorePlugin.getDefault().logError(e);
+		} catch (final Exception e) {
+			logError(e);
 		}
 	}
 

@@ -151,37 +151,54 @@ public interface GUIDefaults {
 	/*
 	 * All images should be declared here, so an image can not be created twice.
 	 */
-	public static final Image IMAGE_UNDEFINED = FMUIPlugin.getImage("undefined.ico");
-	public static final Image IMAGE_SELECTED = FMUIPlugin.getImage("selected.ico");
-	public static final Image IMAGE_DESELECTED = FMUIPlugin.getImage("deselected.ico");
-	public static final Image IMAGE_ASELECTED = FMUIPlugin.getImage("aselected.ico");
-	public static final Image IMAGE_ADESELECTED = FMUIPlugin.getImage("adeselected.ico");
+	public static  Image IMAGE_UNDEFINED = getImage("undefined.ico");
+	public static  Image IMAGE_SELECTED = getImage("selected.ico");
+	public static  Image IMAGE_DESELECTED = getImage("deselected.ico");
+	public static  Image IMAGE_ASELECTED = getImage("aselected.ico");
+	public static  Image IMAGE_ADESELECTED = getImage("adeselected.ico");
 
-	public static final Image HELP_IMAGE = FMUIPlugin.getImage("help.gif");
-	public static final Image ERROR_IMAGE = FMUIPlugin.getImage("icon_error.gif");
-	public static final Image BANNER_IMAGE = FMUIPlugin.getImage("title_banner.gif");
-	public static final Image WARNING_IMAGE = FMUIPlugin.getImage("message_warning.gif");
+	public static  Image HELP_IMAGE = getImage("help.gif");
+	public static  Image ERROR_IMAGE = getImage("icon_error.gif");
+	public static  Image BANNER_IMAGE = getImage("title_banner.gif");
+	public static  Image WARNING_IMAGE = getImage("message_warning.gif");
 
-	public static final Image OPERATOR_SYMBOL = FMUIPlugin.getImage("operator_symbol.gif");
-	public static final Image FEATURE_SYMBOL = FMUIPlugin.getImage("FeatureIconSmall.ico");
+	public static  Image OPERATOR_SYMBOL = getImage("operator_symbol.gif");
+	public static  Image FEATURE_SYMBOL = getImage("FeatureIconSmall.ico");
 
-	public static final Image IMG_OPTIONAL = FMUIPlugin.getImage("optional.gif");
-	public static final Image IMG_MANDATORY = FMUIPlugin.getImage("mandatory.gif");
-	public static final Image IMG_OR = FMUIPlugin.getImage("or.gif");
-	public static final Image IMG_XOR = FMUIPlugin.getImage("xor.gif");
+	public static  Image IMG_OPTIONAL = getImage("optional.gif");
+	public static  Image IMG_MANDATORY = getImage("mandatory.gif");
+	public static  Image IMG_OR = getImage("or.gif");
+	public static  Image IMG_XOR = getImage("xor.gif");
 
-	public static final Image PLUS_IMAGE = FMUIPlugin.getImage("plus.gif");
-	public static final Image MINUS_IMAGE = FMUIPlugin.getImage("minus.gif");
-	public static final Image ZERO_IMAGE = FMUIPlugin.getImage("zero.gif");
-	public static final Image PLUS_MINUS_IMAGE = FMUIPlugin.getImage("plusminus.gif");
+	public static  Image PLUS_IMAGE = getImage("plus.gif");
+	public static  Image MINUS_IMAGE = getImage("minus.gif");
+	public static  Image ZERO_IMAGE = getImage("zero.gif");
+	public static  Image PLUS_MINUS_IMAGE = getImage("plusminus.gif");
 
-	public static final Image DEFAULT_IMAGE = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT);
-	public static final Image ERROR_IMAGE_TSK = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK);
+	public static  Image DEFAULT_IMAGE = getWorkBenchImage(ISharedImages.IMG_OBJ_ELEMENT);
+	public static  Image ERROR_IMAGE_TSK = getWorkBenchImage(ISharedImages.IMG_OBJS_ERROR_TSK);
 
-	public static final Image IMAGE_EMPTY = FMUIPlugin.getImage("empty.png");
+	public static  Image IMAGE_EMPTY = getImage("empty.png");
 
-	public static final Image FM_ERROR = FMUIPlugin.getImage("fmerror.png");
-	public static final Image FM_WARNING = FMUIPlugin.getImage("fmwarning.png");
-	public static final Image FM_INFO = FMUIPlugin.getImage("fminfo.png");
+	public static  Image FM_ERROR = getImage("fmerror.png");
+	public static  Image FM_WARNING = getImage("fmwarning.png");
+	public static  Image FM_INFO = getImage("fminfo.png");
 
+	static Image getImage(String name) {
+		try {
+			return FMUIPlugin.getImage(name);
+		}
+		catch(Exception ex){
+			return null;
+		}
+	}
+
+	static Image getWorkBenchImage(String name) {
+		try {
+			return PlatformUI.getWorkbench().getSharedImages().getImage(name);
+		}
+		catch(Exception ex){
+			return null;
+		}
+	}
 }

@@ -227,10 +227,15 @@ public class FeatureEditPart extends ModelElementEditPart implements NodeEditPar
 			}
 
 			for (final FeatureConnection connection : getModel().getTargetConnections()) {
-				final ConnectionEditPart connectionEditPart = (ConnectionEditPart) getViewer().getEditPartRegistry().get(connection);
-				if (connectionEditPart != null) {
-					connectionEditPart.refresh();
+				if ((ConnectionEditPart) getViewer() != null) {
+					final ConnectionEditPart connectionEditPart = (ConnectionEditPart) getViewer().getEditPartRegistry().get(connection);
+					if (connectionEditPart != null) {
+						connectionEditPart.refresh();
+					}
+				} else {
+					System.out.println("Viewer of EditPart was null, not refreshing connections.");
 				}
+
 			}
 			break;
 		case GROUP_TYPE_CHANGED:

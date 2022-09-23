@@ -72,7 +72,13 @@ public class FeatureColorManager implements IEventListener {
 	 * Returns the current color of the given feature.
 	 */
 	public static FeatureColor getColor(IFeature feature) {
-		return getCurrentColorScheme(feature).getColor(feature);
+		try {
+			return getCurrentColorScheme(feature).getColor(feature);
+
+		}
+		catch (Exception ex) {
+			return FeatureColor.Dark_Green;
+		}
 	}
 
 	/**
